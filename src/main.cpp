@@ -6,7 +6,8 @@
 #include <Adafruit_SSD1306.h>
 #include <ESP8266WiFi.h>
 
-// If using software SPI (the default case):
+#include <tweetnacl.h>
+
 #define OLED_MOSI   2
 #define OLED_CLK   12
 #define OLED_DC    13
@@ -18,12 +19,25 @@ void setup() {
   Serial.begin(9600);
   display.begin(SSD1306_SWITCHCAPVCC);
   display.clearDisplay();
-  display.setTextSize(1);
   display.setTextColor(WHITE);
-  display.setCursor(0,0);
+  display.setTextSize(1);
+  display.setCursor(0, 0);
   display.println("Hi Jeff, looking for open wifi networks.");
   display.display();
 }
+
+enum class ScannerState {
+  SCANNING,
+  SENDING,
+  FOUND,
+  DONE
+};
+
+class Scanner {
+
+};
+
+auto scanner = Scanner();
 
 void loop() {
   int n = WiFi.scanNetworks();
@@ -31,7 +45,7 @@ void loop() {
   display.setCursor(0,0);
   if(n > 0) {
     display.println("Yo, try these:");
-    for(int i = 0; i < n; i++){
+    for(int i = 0; i < n; i++) {
       if(WiFi.encryptionType(i) == ENC_TYPE_NONE)
         display.println(WiFi.SSID(i));
     }
