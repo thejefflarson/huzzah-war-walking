@@ -8,12 +8,21 @@
 
 #include <tweetnacl.h>
 
+#include <utility>
+#include <vector>
+
 #define OLED_MOSI   2
 #define OLED_CLK   12
 #define OLED_DC    13
 #define OLED_CS    14
 #define OLED_RESET 15
 Adafruit_SSD1306 display(OLED_MOSI, OLED_CLK, OLED_DC, OLED_RESET, OLED_CS);
+
+// PlatformIO doesn't support c++14 yet
+template<typename T, typename... Args>
+std::unique_ptr<T> make_unique(Args&&... args){
+  return std::unique_ptr<T>(new T(std::forward<Args>(args)...));
+}
 
 void setup() {
   Serial.begin(9600);
@@ -44,7 +53,8 @@ private:
 };
 
 class Sending : public State {
-
+public:
+  Sending() {}
 };
 
 class Recieving : public State {
@@ -57,16 +67,16 @@ class Reporting : public State {
 
 class Scanner {
 public:
-  Scanner() : state_(Scanning()) {}
+  Scanner() : state_(make_unique<Scanning>()) {}
   void tick() {
-    state_.run(*this);
+    state_->run(*this);
   };
 
-  void promote(State &state) {
-    state_ = state;
+  void promote(std::unique_ptr<State> state) {
+    state_ = std::move(state);
   };
 private:
-  State &state_;
+  std::unique_ptr<State> state_;
 };
 
 auto scanner = Scanner();
