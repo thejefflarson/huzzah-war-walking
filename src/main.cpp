@@ -26,15 +26,47 @@ void setup() {
   display.display();
 }
 
-enum class ScannerState {
-  SCANNING,
-  SENDING,
-  FOUND,
-  DONE
+class Scanner;
+class State {
+public:
+  virtual void run(Scanner &scanner) = 0;
+  virtual ~State() = default;
+};
+
+class Scanning : public State {
+public:
+  Scanning() {}
+  void run(Scanner &scanner) {
+
+  }
+private:
+  std::vector<std::string> done;
+};
+
+class Sending : public State {
+
+};
+
+class Recieving : public State {
+
+};
+
+class Reporting : public State {
+
 };
 
 class Scanner {
+public:
+  Scanner() : state_(Scanning()) {}
+  void tick() {
+    state_.run(*this);
+  };
 
+  void promote(State &state) {
+    state_ = state;
+  };
+private:
+  State &state_;
 };
 
 auto scanner = Scanner();
