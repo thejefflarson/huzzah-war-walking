@@ -3,6 +3,18 @@
 #include <ESP8266WiFi.h>
 #include <memory>
 
+Scanner::Scanner() {
+  state_ = make_unique<Scanning>();
+}
+
+void Scanner::tick() {
+  state_->run(*this);
+}
+
+void Scanner::promote(std::unique_ptr<State> state) {
+  state_ = std::move(state);
+};
+
 
 void Scanning::run(Scanner &scanner) {
   int n = WiFi.scanNetworks();

@@ -1,6 +1,6 @@
 #ifndef SRC_DISPLAY
 #define SRC_DISPLAY
-
+#include <Arduino.h>
 #include <Adafruit_SSD1306.h>
 
 void show();
