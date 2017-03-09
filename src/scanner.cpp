@@ -15,7 +15,6 @@ void Scanner::promote(std::unique_ptr<State> state) {
   state_ = std::move(state);
 };
 
-
 void Scanning::run(Scanner &scanner) {
   int n = WiFi.scanNetworks();
   if(n > 0) {
@@ -23,11 +22,11 @@ void Scanning::run(Scanner &scanner) {
       if(WiFi.encryptionType(i) == ENC_TYPE_NONE)
         candidates_.push_back(WiFi.SSID(i));
     }
-    //scanner.promote(make_unique<>());
+    scanner.promote(make_unique<Sending>(candidates_));
   } else {
-    //clear();
-    //display().println("no networks :(");
-    //show();
+    clear();
+    display().println("no networks :(");
+    show();
   }
 }
 
@@ -35,10 +34,14 @@ void Sending::run(Scanner& scanner) {
 
 };
 
+void Recieving::run(Scanner& scanner) {
+
+};
+
 void Reporting::run(Scanner& scanner) {
   clear();
-  display().println("Yo, try these: ");
-  for(auto net : networks_)
-    display().println(net);
+  display().println("Yo, try: ");
+  display().println(network_);
+  sleep(60);
   show();
 };

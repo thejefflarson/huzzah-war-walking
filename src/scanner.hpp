@@ -38,23 +38,31 @@ private:
 
 class Sending : public State {
 public:
-  Sending() {}
+  Sending(std::vector<String> candidates) :
+    canditates_(candidates) {}
   void run(Scanner& scanner);
+private:
+  std::vector<String> candidates_;
 };
 
 class Recieving : public State {
 public:
-  Recieving() {}
+  Recieving(String current, std::vector<String> candidates) :
+    current_(current),
+    candidates_(candidates) {}
   void run(Scanner& scanner);
+private:
+  String current_;
+  std::vector<String> candidates_;
 };
 
 class Reporting : public State {
 public:
-  Reporting(std::vector<String> networks) :
-    networks_(networks) {}
+  Reporting(String network) :
+    network_(network) {}
   void run(Scanner& scanner);
 private:
-  std::vector<String> networks_;
+  String network_;
 };
 
 #endif
