@@ -24,18 +24,30 @@ void Scanning::run(Scanner &scanner) {
     }
     scanner.promote(make_unique<Sending>(candidates_));
   } else {
-    clear();
-    display().println("no networks :(");
-    show();
+    scanner.promote(make_unique<Failing>("no networks :("));
   }
 }
 
 void Sending::run(Scanner& scanner) {
+  auto candidate = candidates_.back();
+  candidates_.pop_back();
+  WiFi.begin(candidate.c_str(), "");
+  int16_t timeout = 5000;
+  while(timeout > 0 && WiFi.status() != WL_CONNECTED) {
+    time_t now = time(NULL);
 
+  };
 };
 
 void Recieving::run(Scanner& scanner) {
 
+};
+
+void Failing::run(Scanner& scanner) {
+  clear();
+  display().println(message_);
+  show();
+  scanner.promote(make_unique<Scanning>());
 };
 
 void Reporting::run(Scanner& scanner) {

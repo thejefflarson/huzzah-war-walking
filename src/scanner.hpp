@@ -53,7 +53,6 @@ public:
   void run(Scanner& scanner);
 private:
   String current_;
-  std::vector<String> candidates_;
 };
 
 class Reporting : public State {
@@ -63,6 +62,14 @@ public:
   void run(Scanner& scanner);
 private:
   String network_;
+};
+
+class Failing : public State {
+public:
+  Failing(String message) : message_(message) {}
+  void run(Scanner& scanner);
+private:
+  String message_;
 };
 
 #endif
