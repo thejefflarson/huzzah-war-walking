@@ -3,6 +3,7 @@
 #include <ESP8266WiFi.h>
 #include <memory>
 
+
 Scanner::Scanner() {
   state_ = make_unique<Scanning>();
 }
@@ -31,12 +32,19 @@ void Scanning::run(Scanner &scanner) {
 void Sending::run(Scanner& scanner) {
   auto candidate = candidates_.back();
   candidates_.pop_back();
-  WiFi.begin(candidate.c_str(), "");
   int16_t timeout = 5000;
+  WiFi.begin(candidate.c_str(), "");
   while(timeout > 0 && WiFi.status() != WL_CONNECTED) {
-    time_t now = time(NULL);
-
+    unsigned long then = millis();
+    timeout = timeout - (millis() - then);
+    sleep(250);
   };
+  if(timeout < 0) {
+    auto next = new Failing("Could not connect to",
+                            make_unique<Sending>(candidates_));
+    return scanner.promote(std::unique_ptr<State>(next));
+  };
+
 };
 
 void Recieving::run(Scanner& scanner) {
@@ -47,7 +55,8 @@ void Failing::run(Scanner& scanner) {
   clear();
   display().println(message_);
   show();
-  scanner.promote(make_unique<Scanning>());
+  scanner.promote(std::move(next_));
+  sleep(1);
 };
 
 void Reporting::run(Scanner& scanner) {

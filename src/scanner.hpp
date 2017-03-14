@@ -66,10 +66,13 @@ private:
 
 class Failing : public State {
 public:
-  Failing(String message) : message_(message) {}
+  Failing(String message, std::unique_ptr<State> next) :
+    message_(message),
+    next_(std::move(next)) {}
   void run(Scanner& scanner);
 private:
   String message_;
+  std::unique_ptr<State> next_;
 };
 
 #endif
