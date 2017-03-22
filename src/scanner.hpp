@@ -37,12 +37,28 @@ private:
 };
 
 class Sending : public State {
-public:
   Sending(std::vector<String> candidates) :
-    canditates_(candidates) {}
+    candidates_(candidates) {};
   void run(Scanner& scanner);
 private:
   std::vector<String> candidates_;
+};
+
+class Connecting : public State {
+public:
+  Connecting(std::vector<String> candidates) :
+    candidates_(candidates),
+    connecting_(false),
+    started_(millis()) {
+    current_ = candidates_.back();
+    candidates.pop_back();
+  }
+  void run(Scanner& scanner);
+private:
+  bool connecting_;
+  std::vector<String> candidates_;
+  String current_;
+  unsigned long started_;
 };
 
 class Recieving : public State {
@@ -52,27 +68,32 @@ public:
     candidates_(candidates) {}
   void run(Scanner& scanner);
 private:
+  std::vector<String> candidates_;
   String current_;
 };
 
 class Reporting : public State {
 public:
   Reporting(String network) :
-    network_(network) {}
+    network_(network),
+    started_(millis()) {}
   void run(Scanner& scanner);
 private:
   String network_;
+  unsigned long started_;
 };
 
 class Failing : public State {
 public:
   Failing(String message, std::unique_ptr<State> next) :
     message_(message),
-    next_(std::move(next)) {}
+    next_(std::move(next)),
+    started_(millis()) {}
   void run(Scanner& scanner);
 private:
   String message_;
   std::unique_ptr<State> next_;
+  unsigned long started_;
 };
 
 #endif

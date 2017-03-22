@@ -29,22 +29,20 @@ void Scanning::run(Scanner &scanner) {
   }
 }
 
-void Sending::run(Scanner& scanner) {
-  auto candidate = candidates_.back();
-  candidates_.pop_back();
-  int16_t timeout = 5000;
-  WiFi.begin(candidate.c_str(), "");
-  while(timeout > 0 && WiFi.status() != WL_CONNECTED) {
-    unsigned long then = millis();
-    timeout = timeout - (millis() - then);
-    sleep(250);
-  };
-  if(timeout < 0) {
-    auto next = new Failing("Could not connect to",
+void Connecting::run(Scanner& scanner) {
+  if(!connecting_) {
+    WiFi.begin(current_.c_str(), "");
+    started_ = millis();
+  } else {
+    if((millis() - started_) < 5000) {
+      if(WiFi.status() == WL_CONNECTED)
+        scanner.promote(make_unique<Sending>(candidates_, current_));
+    } else {
+      auto next = new Failing("Could not connect to",
                             make_unique<Sending>(candidates_));
-    return scanner.promote(std::unique_ptr<State>(next));
-  };
-
+      return scanner.promote(std::unique_ptr<State>(next));
+    }
+  }
 };
 
 void Recieving::run(Scanner& scanner) {
@@ -52,17 +50,22 @@ void Recieving::run(Scanner& scanner) {
 };
 
 void Failing::run(Scanner& scanner) {
-  clear();
-  display().println(message_);
-  show();
-  scanner.promote(std::move(next_));
-  sleep(1);
+  if(millis() - started_ < 1000) {
+    clear();
+    display().println(message_);
+    show();
+  } else {
+    scanner.promote(std::move(next_));
+  }
 };
 
 void Reporting::run(Scanner& scanner) {
-  clear();
-  display().println("Yo, try: ");
-  display().println(network_);
-  sleep(60);
-  show();
+  if(millis() - started_ < 60000) {
+    clear();
+    display().println("Yo, try: ");
+    display().println(network_);
+    show();
+  } else {
+    scanner.promote(make_unique<Scanning>());
+  }
 };
