@@ -1,7 +1,12 @@
 #include "display.hpp"
 #include "scanner.hpp"
+#include "tweetnacl.h"
 #include <ESP8266WiFi.h>
 #include <memory>
+
+void randombytes(uint8_t *x, uint32_t xlen) {
+  if(os_get_random(x, xlen) == -1) abort();
+}
 
 
 Scanner::Scanner() {
@@ -43,6 +48,10 @@ void Connecting::run(Scanner& scanner) {
       return scanner.promote(std::unique_ptr<State>(next));
     }
   }
+};
+
+void Sending::run(Scanner& scanner) {
+
 };
 
 void Recieving::run(Scanner& scanner) {
