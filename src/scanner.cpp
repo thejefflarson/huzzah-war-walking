@@ -5,7 +5,13 @@
 #include <memory>
 
 void randombytes(uint8_t *x, uint32_t xlen) {
-  if(os_get_random(x, xlen) == -1) abort(); // no messing about here
+  if(os_get_random(x, xlen) == -1) {
+    clear();
+    display().println("Can't get a random value, I'm now dead.");
+    show();
+    delay(600000);
+    abort();
+  }
 }
 
 Scanner::Scanner() {
@@ -29,7 +35,7 @@ void Scanning::run(Scanner &scanner) {
     }
     scanner.promote(make_unique<Sending>(candidates_));
   } else {
-    scanner.promote(make_unique<Failing>("no networks :("));
+    scanner.promote(make_unique<Failing>("No networks :("));
   }
 }
 
