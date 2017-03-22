@@ -5,9 +5,8 @@
 #include <memory>
 
 void randombytes(uint8_t *x, uint32_t xlen) {
-  if(os_get_random(x, xlen) == -1) abort();
+  if(os_get_random(x, xlen) == -1) abort(); // no messing about here
 }
-
 
 Scanner::Scanner() {
   state_ = make_unique<Scanning>();
