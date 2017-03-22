@@ -44,6 +44,10 @@ void Connecting::run(Scanner& scanner) {
     WiFi.begin(current_.c_str(), "");
     started_ = millis();
   } else {
+    clear();
+    display().println("Connecting to:");
+    display().println(current_);
+    show();
     if((millis() - started_) < 5000) {
       if(WiFi.status() == WL_CONNECTED)
         scanner.promote(make_unique<Sending>(candidates_, current_));
